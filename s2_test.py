@@ -5,29 +5,26 @@ File: s2_test.py
 Version: v1.0
 Date: 2023-02-09
 Authors: Chen G.
-Description: This script creates downloading and processing Sentinel-2 images.
+Description: This script creates downloading and processing Sentinel-2 images based on Google Earth Engine.
 License: This code is distributed under the MIT License.
 
-    sentinel2_download Parameter:
-        USER_NAME: The account name to log in ESA Copernicus Open Access Hub (https://scihub.copernicus.eu/).
-        PASSWORD: The account password to log in ESA Copernicus Open Access Hub.
-        FOOTPRINT: The region to include imagery within.
-        START_DATE: A time interval filter based on the Sensing Start Time of the products. Following formats:
-            - yyyyMMdd
-            - yyyy-MM-ddThh:mm:ss.SSSZ (ISO-8601)
-            - yyyy-MM-ddThh:mm:ssZ
-            - NOW
-            - NOW-<n>DAY(S) (or HOUR(S), MONTH(S), etc.)
-            - NOW+<n>DAY(S)
-            - yyyy-MM-ddThh:mm:ssZ-<n>DAY(S)
-            - NOW/DAY (or HOUR, MONTH etc.) - rounds the value to the given unit
-        END_DATE: A time interval filter based on the Sensing Start Time of the products.
-        PRODUCT_TYPE: Type of sentinel-2 product to apply (String):
-            'S2MSI2A' - Sentinel-2 MSI L2A product
-            'S2MSI1C' - Sentinel-2 MSI L1C product
-            'S2MS2Ap' - Sentinel-2 MSI L2Ap product
-        CLOUD_COVER_PERCENTAGE: (Optional) cloud cover percentage to apply s2 products filter.
-        SAVE_DIR: Download the sentinel-2 images to local.
+    Parameter:
+        START_DATE: The earliest date to include images for (inclusive).
+        END_DATE: The latest date to include images for (exclusive).
+        BANDS: The Sentinel-2 image bands to select for processing.
+        ROI: The boundry to select for processing.
+        MAX_CLOUD_PROBABILITY: (Optional) cloud cover percentage to apply s2 image collection filter.
+        CAL_NDVI: (Optional) calculate the Normalized Difference Vegetation Index (NDVI) from multiband s2 images.
+        CAL_NDMI: (Optional) calculate the Normalized Difference Moisture Index (NDMI) from multiband s2 images.
+        CLIP_TO_ROI: (Optional) clip the processed image to the region of interest.
+        SAVE_ASSETS : (Optional) exports the processed collection to an asset.
+        ASSET_ID : (Optional) the user id path to save the assets
+        SAVE_LOCAL : (Optional) download the processed images to local.
+        VISUALIZATION : (Optional) convert raw image to RGB image and download the processed images to local.
+        LOCAL_DIR : (Optional) where to save downloaded images.
+        
+    Returns:
+        An ee.ImageCollection with an analysis ready Sentinel 2 imagery with the cloud masked images and vegetation index band.
 
 
     """
