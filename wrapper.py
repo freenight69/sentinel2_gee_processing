@@ -116,7 +116,7 @@ def s2_preprocess(params):
     ###########################################
     # 3. CALCULATE VEGETATION INDEX
     ###########################################
-    
+
     if CAL_NDVI:
         s2_sr = s2_sr.map(ci.cal_ndvi)
         BANDS.append('NDVI')
@@ -187,7 +187,7 @@ def s2_preprocess(params):
                 filename_rgb = os.path.join(LOCAL_DIR, name + '_VIS_RGB.tif')
                 print('Downloading Visualization RGB Image to {}'.format(filename_rgb))
                 # geemap.download_ee_image(rgbImage, filename_rgb, region=ROI, crs='EPSG:4326', scale=10, dtype='int32')
-                geemap.ee_export_image(rgbImage, filename=filename_rgb, scale=10, region=ROI)
+                geemap.ee_export_image(rgbImage, filename=filename_rgb, scale=10, crs='EPSG:4326', region=ROI)
 
                 if CAL_NDVI:
                     img_ndvi = img.select('NDVI')
@@ -195,14 +195,14 @@ def s2_preprocess(params):
                         'bands': ['NDVI'],
                         'min': 0.0,
                         'max': 1.0,
-                        'palette': ['FFFFFF',  'CE7E45',  'DF923D',  'F1B555',  'FCD163',
-                                    '99B718',  '74A901',  '66A000',  '529400',  '3E8601',
-                                    '207401',  '056201',  '004C00',  '023B01',  '012E01',
-                                    '011D01',  '011301']
+                        'palette': ['FFFFFF', 'CE7E45', 'DF923D', 'F1B555', 'FCD163',
+                                    '99B718', '74A901', '66A000', '529400', '3E8601',
+                                    '207401', '056201', '004C00', '023B01', '012E01',
+                                    '011D01', '011301']
                     })
                     filename_vis_ndvi = os.path.join(LOCAL_DIR, name + '_VIS_NDVI.tif')
                     print('Downloading Visualization NDVI Image to {}'.format(filename_vis_ndvi))
                     # geemap.download_ee_image(ndviImage, filename_vis_ndvi, region=ROI, crs='EPSG:4326', scale=10, dtype='int32')
-                    geemap.ee_export_image(ndviImage, filename=filename_vis_ndvi, scale=10, region=ROI)
+                    geemap.ee_export_image(ndviImage, filename=filename_vis_ndvi, scale=10, crs='EPSG:4326', region=ROI)
 
     return s2_sr

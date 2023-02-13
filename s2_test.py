@@ -33,7 +33,6 @@ import ee
 import datetime
 import wrapper as wp
 
-
 # /***************************/
 # // MAIN
 # /***************************/
@@ -67,7 +66,7 @@ parameter = {'START_DATE': '2023-01-20',
              'ASSET_ID': "users/gongchen9369",
              'SAVE_LOCAL': True,
              'VISUALIZATION': True,
-             'LOCAL_DIR': "G:/test"
+             'LOCAL_DIR': "G:/test/wgs84"
              }
 
 # /***************************/
