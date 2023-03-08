@@ -62,10 +62,13 @@ parameter = {'START_DATE': '2023-01-20',
              'CAL_NDVI': True,
              'CAL_NDMI': False,
              'CLIP_TO_ROI': True,
+             'EXPORT_CRS': 'EPSG:4326',
+             'EXPORT_SCALE': 10,
              'SAVE_ASSET': False,
              'ASSET_ID': "users/gongchen9369",
              'SAVE_LOCAL': True,
              'VISUALIZATION': True,
+             'RESAMPLE_SCALE': 100,
              'LOCAL_DIR': "G:/test/wgs84"
              }
 
