@@ -55,6 +55,6 @@ def cal_ndmi(image):
         image.expression(
             '(nir - swir1) / (nir + swir1)',
             {
-                'red': image.select('B4'),    # RED
+                'nir': image.select('B8'),    # NIR
                 'swir1': image.select('B11')  # SWIR1
             }).rename('NDMI'))

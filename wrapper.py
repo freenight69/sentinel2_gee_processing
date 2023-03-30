@@ -83,9 +83,9 @@ def s2_preprocess(params):
     if RESAMPLE_SCALE is None:
         RESAMPLE_SCALE = 100
 
-    bands_required = ['B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8', 'B8A', 'B11', 'B12']
-    if any(band in bands_required for band in BANDS):
-        raise ValueError("ERROR!!! Parameter BANDS not correctly defined")
+    # bands_required = ['B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8', 'B8A', 'B11', 'B12']
+    # if any(band in bands_required for band in BANDS):
+    #     raise ValueError("ERROR!!! Parameter BANDS not correctly defined")
 
     if MAX_CLOUD_PROBABILITY < 0 or MAX_CLOUD_PROBABILITY > 100:
         raise ValueError("ERROR!!! Parameter MAX_CLOUD_PROBABILITY not correctly defined")
@@ -131,6 +131,8 @@ def s2_preprocess(params):
         s2_sr = helper.cloud_mask_filter(ee.ImageCollection(s2SrWithCloudMask), MAX_CLOUD_PROBABILITY)
         # scale images
         s2_sr = s2_sr.map(helper.scale_image)
+    elif MAX_CLOUD_PROBABILITY == 100:
+        s2_sr = s2_sr.map(helper.scale_image)
 
     ###########################################
     # 3. CALCULATE VEGETATION INDEX
@@ -138,17 +140,12 @@ def s2_preprocess(params):
 
     if CAL_NDVI:
         s2_sr = s2_sr.map(ci.cal_ndvi)
-        BANDS.append('NDVI')
     if CAL_NDMI:
         s2_sr = s2_sr.map(ci.cal_ndmi)
-        BANDS.append('NDMI')
 
     ###########################################
     # 4. OUTPUT
     ###########################################
-
-    # select bands
-    s2_sr = s2_sr.select(BANDS)
 
     # clip to roi
     if CLIP_TO_ROI:
@@ -182,18 +179,30 @@ def s2_preprocess(params):
         for idx in range(0, size):
             img = imlist.get(idx)
             img = ee.Image(img)
+            img_raw = img.select(BANDS)
+            img_ndvi = img.select('NDVI')
+            img_ndmi = img.select('NDMI')
             name = str(img.id().getInfo())
 
             # save raw images to local
             if not os.path.exists(LOCAL_DIR):
                 os.makedirs(LOCAL_DIR)
             filename_raw = os.path.join(LOCAL_DIR, name + '.tif')
+            filename_ndvi = os.path.join(LOCAL_DIR, name + '_NDVI.tif')
+            filename_ndmi = os.path.join(LOCAL_DIR, name + '_NDMI.tif')
             print('Downloading Raw Image: {} to {}'.format(name, filename_raw))
             if CLIP_TO_ROI:
-                geemap.download_ee_image(img, filename_raw, region=ROI, crs=EXPORT_CRS, scale=EXPORT_SCALE)
+                geemap.download_ee_image(img_raw, filename_raw, region=ROI, crs=EXPORT_CRS, scale=EXPORT_SCALE)
+                if CAL_NDVI:
+                    geemap.download_ee_image(img_ndvi, filename_ndvi, region=ROI, crs=EXPORT_CRS, scale=EXPORT_SCALE)
+                if CAL_NDMI:
+                    geemap.download_ee_image(img_ndmi, filename_ndmi, region=ROI, crs=EXPORT_CRS, scale=EXPORT_SCALE)
             else:
-                geemap.download_ee_image(img, filename_raw, region=footprintList[idx], crs=EXPORT_CRS,
-                                         scale=EXPORT_SCALE)
+                geemap.download_ee_image(img_raw, filename_raw, region=footprintList[idx], crs=EXPORT_CRS, scale=EXPORT_SCALE)
+                if CAL_NDVI:
+                    geemap.download_ee_image(img_ndvi, filename_ndvi, region=footprintList[idx], crs=EXPORT_CRS, scale=EXPORT_SCALE)
+                if CAL_NDMI:
+                    geemap.download_ee_image(img_ndmi, filename_ndmi, region=footprintList[idx], crs=EXPORT_CRS, scale=EXPORT_SCALE)
 
             # save visualization images to local
             if VISUALIZATION:
@@ -211,11 +220,9 @@ def s2_preprocess(params):
                 if CLIP_TO_ROI:
                     geemap.ee_export_image(rgbImage, filename=filename_rgb, scale=RESAMPLE_SCALE, crs=EXPORT_CRS, region=ROI)
                 else:
-                    geemap.ee_export_image(rgbImage, filename=filename_rgb, scale=RESAMPLE_SCALE, crs=EXPORT_CRS,
-                                           region=footprintList[idx])
+                    geemap.ee_export_image(rgbImage, filename=filename_rgb, scale=RESAMPLE_SCALE, crs=EXPORT_CRS, region=footprintList[idx])
 
                 if CAL_NDVI:
-                    img_ndvi = img.select('NDVI')
                     ndviImage = img_ndvi.visualize(**{
                         'bands': ['NDVI'],
                         'min': 0.0,
@@ -228,10 +235,10 @@ def s2_preprocess(params):
                     filename_vis_ndvi = os.path.join(LOCAL_DIR, name + '_render_NDVI.tif')
                     print('Downloading Visualization NDVI Image to {}'.format(filename_vis_ndvi))
                     if CLIP_TO_ROI:
-                        geemap.download_ee_image(ndviImage, filename_vis_ndvi, region=ROI, crs=EXPORT_CRS,
-                                                 scale=RESAMPLE_SCALE, dtype='int32')
+                        # geemap.download_ee_image(ndviImage, filename_vis_ndvi, region=ROI, crs=EXPORT_CRS, scale=RESAMPLE_SCALE, dtype='int32')
+                        geemap.ee_export_image(ndviImage, filename=filename_vis_ndvi, scale=RESAMPLE_SCALE, crs=EXPORT_CRS, region=ROI)
                     else:
-                        geemap.download_ee_image(ndviImage, filename_vis_ndvi, region=footprintList[idx],
-                                                 crs=EXPORT_CRS, scale=RESAMPLE_SCALE, dtype='int32')
+                        # geemap.download_ee_image(ndviImage, filename_vis_ndvi, region=footprintList[idx], crs=EXPORT_CRS, scale=RESAMPLE_SCALE, dtype='int32')
+                        geemap.ee_export_image(ndviImage, filename=filename_vis_ndvi, scale=RESAMPLE_SCALE, crs=EXPORT_CRS, region=footprintList[idx])
 
     return s2_sr
